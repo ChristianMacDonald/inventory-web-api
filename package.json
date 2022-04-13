@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/ChristianMacDonald/inventory-web-api/issues"
   },
-  "homepage": "https://github.com/ChristianMacDonald/inventory-web-api#readme"
+  "homepage": "https://github.com/ChristianMacDonald/inventory-web-api#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "knex": "^1.0.6"
+  }
 }
