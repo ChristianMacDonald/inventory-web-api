@@ -20,6 +20,7 @@
   "homepage": "https://github.com/ChristianMacDonald/inventory-web-api#readme",
   "dependencies": {
     "express": "^4.17.3",
-    "knex": "^1.0.6"
+    "knex": "^1.0.6",
+    "pg": "^8.7.3"
   }
 }
