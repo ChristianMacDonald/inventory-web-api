@@ -1,11 +1,27 @@
 const qb = require('../queryBuilder');
 
-function getUserByUsername(username) {
-  return qb('users').where({ username }).first();
+function getUserByUsername(username, includeAllFields=false) {
+  let promise;
+
+  if (includeAllFields) {
+    promise = qb('users').where({ username }).first();
+  } else {
+    promise = qb('users').where({ username }).select('username').first();
+  }
+
+  return promise;
 }
 
-function getUserByID(id) {
-  return qb('users').where({ id }).first();
+function getUserByID(id, includeAllFields=false) {
+  let promise;
+
+  if (includeAllFields) {
+    promise = qb('users').where({ id }).first();
+  } else {
+    promise = qb('users').where({ id }).select('username').first();
+  }
+
+  return promise;
 }
 
 function createUser(user) {
