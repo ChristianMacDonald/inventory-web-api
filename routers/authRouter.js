@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const { getUserByUsername, createUser, getUserByID } = require('../models/usersModel');
-const queryBuilder = require('../queryBuilder');
+const validateToken = require('../middleware/validateToken');
 
 router.get('/:id', async (req, res) => {
   try {
@@ -19,6 +20,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.post('/test-token', validateToken, (req, res) => {
+  res.status(200).json(req.tokenPayload);
+});
+
 router.post('/login', async (req, res) => {
   try {
     let { username, password } = req.body;
@@ -27,7 +32,8 @@ router.post('/login', async (req, res) => {
       let user = await getUserByUsername(username, true);
 
       if (username === user.username && bcrypt.compareSync(password, user.password)) {
-        res.status(200).json({ message: 'Successfully logged in' });
+        let token = jwt.sign({ username }, process.env.JWT_SECRET);
+        res.status(200).json({ token });
       } else {
         res.status(401).json({ message: 'Incorrect username or password' });
       }
