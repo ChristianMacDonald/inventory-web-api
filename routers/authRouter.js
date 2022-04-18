@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     if (req.body.username && req.body.password) {
       let [{id}] = await createUser(req.body);
