@@ -61,21 +61,23 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.put('/:username', validateToken, async (req, res) => {
-  let { username } = req.params;
-  
-  if (username === req.tokenPayload.username) {
+router.put('/password', validateToken, async (req, res) => {
+  let { username } = req.tokenPayload;
+  let { old_password, new_password } = req.body;
+
+  if (old_password && new_password) {
     try {
       let user = await getUserByUsername(username, true);
-
+  
       if (user) {
-        await updateUserByID(user.id, req.body);
-        if (req.body.username) {
-          user = await getUserByUsername(req.body.username);
+        if (bcrypt.compareSync(old_password, user.password)) {
+          let salt = bcrypt.genSaltSync(parseInt(process.env.SALT_ROUNDS));
+          let hash = bcrypt.hashSync(new_password, salt);
+          await updateUserByID(user.id, { password: hash });
+          res.status(200).json({ message: 'Password successfully changed' });
         } else {
-          user = await getUserByUsername(username);
+          res.status(401).json({ message: 'Incorrect password' });
         }
-        res.status(200).json(user);
       } else {
         res.status(404).json({ message: `Could not find user with username ${username}` });
       }
@@ -83,7 +85,7 @@ router.put('/:username', validateToken, async (req, res) => {
       res.status(500).json({ errorMessage: `Could not edit user with username ${username}` });
     }
   } else {
-    res.status(401).json({ message: 'Cannot edit other users' });
+    res.status(400).json({ message: 'Missing required fields' });
   }
 });
 
