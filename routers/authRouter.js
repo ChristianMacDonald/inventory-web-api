@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { getUserByUsername, createUser, getUserByID } = require('../models/usersModel');
+const { getUserByUsername, createUser, getUserByID, removeUserByID, updateUserByID } = require('../models/usersModel');
 const validateToken = require('../middleware/validateToken');
 
 router.get('/:id', async (req, res) => {
@@ -58,6 +58,53 @@ router.post('/register', async (req, res) => {
     }
   } catch {
     res.status(500).json({ errorMessage: 'Could not create user' });
+  }
+});
+
+router.put('/:username', validateToken, async (req, res) => {
+  let { username } = req.params;
+  
+  if (username === req.tokenPayload.username) {
+    try {
+      let user = await getUserByUsername(username, true);
+
+      if (user) {
+        await updateUserByID(user.id, req.body);
+        if (req.body.username) {
+          user = await getUserByUsername(req.body.username);
+        } else {
+          user = await getUserByUsername(username);
+        }
+        res.status(200).json(user);
+      } else {
+        res.status(404).json({ message: `Could not find user with username ${username}` });
+      }
+    } catch {
+      res.status(500).json({ errorMessage: `Could not edit user with username ${username}` });
+    }
+  } else {
+    res.status(401).json({ message: 'Cannot edit other users' });
+  }
+});
+
+router.delete('/:username', validateToken, async (req, res) => {
+  let { username } = req.params;
+
+  if (username === req.tokenPayload.username) {
+    try {
+      let user = await getUserByUsername(username, true);
+
+      if (user) {
+        await removeUserByID(user.id);
+        res.status(200).json(user);
+      } else {
+        res.status(404).json({ message: `Could not find user with username ${username}` });
+      }
+    } catch {
+      res.status(500).json({ errorMessage: `Could not delete user with username ${username}` });
+    }
+  } else {
+    res.status(401).json({ message: 'Cannot delete other users' });
   }
 });
 
