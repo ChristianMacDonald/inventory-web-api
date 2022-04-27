@@ -6,9 +6,11 @@ const jwt = require('jsonwebtoken');
 const { getUserByUsername, createUser, getUserByID, removeUserByID, updateUserByID } = require('../models/usersModel');
 const validateToken = require('../middleware/validateToken');
 
-router.get('/:id', async (req, res) => {
+router.get('/user', validateToken, async (req, res) => {
+  let { username } = req.tokenPayload;
+
   try {
-    let user = await getUserByID(req.params.id);
+    let user = await getUserByUsername(username);
 
     if (user) {
       res.status(200).json(user);
@@ -89,24 +91,20 @@ router.put('/password', validateToken, async (req, res) => {
   }
 });
 
-router.delete('/:username', validateToken, async (req, res) => {
-  let { username } = req.params;
+router.delete('/user', validateToken, async (req, res) => {
+  let { username } = req.tokenPayload;
 
-  if (username === req.tokenPayload.username) {
-    try {
-      let user = await getUserByUsername(username, true);
+  try {
+    let user = await getUserByUsername(username, true);
 
-      if (user) {
-        await removeUserByID(user.id);
-        res.status(200).json(user);
-      } else {
-        res.status(404).json({ message: `Could not find user with username ${username}` });
-      }
-    } catch {
-      res.status(500).json({ errorMessage: `Could not delete user with username ${username}` });
+    if (user) {
+      await removeUserByID(user.id);
+      res.status(200).json({ message: `Successfully deleted user with username ${username}` });
+    } else {
+      res.status(404).json({ message: `Could not find user with username ${username}` });
     }
-  } else {
-    res.status(401).json({ message: 'Cannot delete other users' });
+  } catch {
+    res.status(500).json({ errorMessage: `Could not delete user with username ${username}` });
   }
 });
 
