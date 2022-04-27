@@ -3,12 +3,14 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { getUserByUsername, createUser, getUserByID } = require('../models/usersModel');
+const { getUserByUsername, createUser, getUserByID, removeUserByID, updateUserByID } = require('../models/usersModel');
 const validateToken = require('../middleware/validateToken');
 
-router.get('/:id', async (req, res) => {
+router.get('/user', validateToken, async (req, res) => {
+  let { username } = req.tokenPayload;
+
   try {
-    let user = await getUserByID(req.params.id);
+    let user = await getUserByUsername(username);
 
     if (user) {
       res.status(200).json(user);
@@ -58,6 +60,51 @@ router.post('/register', async (req, res) => {
     }
   } catch {
     res.status(500).json({ errorMessage: 'Could not create user' });
+  }
+});
+
+router.put('/password', validateToken, async (req, res) => {
+  let { username } = req.tokenPayload;
+  let { old_password, new_password } = req.body;
+
+  if (old_password && new_password) {
+    try {
+      let user = await getUserByUsername(username, true);
+  
+      if (user) {
+        if (bcrypt.compareSync(old_password, user.password)) {
+          let salt = bcrypt.genSaltSync(parseInt(process.env.SALT_ROUNDS));
+          let hash = bcrypt.hashSync(new_password, salt);
+          await updateUserByID(user.id, { password: hash });
+          res.status(200).json({ message: 'Password successfully changed' });
+        } else {
+          res.status(401).json({ message: 'Incorrect password' });
+        }
+      } else {
+        res.status(404).json({ message: `Could not find user with username ${username}` });
+      }
+    } catch {
+      res.status(500).json({ errorMessage: `Could not edit user with username ${username}` });
+    }
+  } else {
+    res.status(400).json({ message: 'Missing required fields' });
+  }
+});
+
+router.delete('/user', validateToken, async (req, res) => {
+  let { username } = req.tokenPayload;
+
+  try {
+    let user = await getUserByUsername(username, true);
+
+    if (user) {
+      await removeUserByID(user.id);
+      res.status(200).json({ message: `Successfully deleted user with username ${username}` });
+    } else {
+      res.status(404).json({ message: `Could not find user with username ${username}` });
+    }
+  } catch {
+    res.status(500).json({ errorMessage: `Could not delete user with username ${username}` });
   }
 });
 
