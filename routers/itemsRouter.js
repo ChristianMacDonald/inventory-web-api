@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const { getAll, getItemByDPCI, createItem } = require('../models/itemsModel');
+const validateToken = require('../middleware/validateToken');
+
+router.use(validateToken);
 
 router.get('/', async (req, res) => {
   try {
@@ -15,6 +18,7 @@ router.get('/', async (req, res) => {
 router.get('/:dpci', async (req, res) => {
   let { dpci } = req.params;
   let department_id, class_id, id;
+  
   if (dpci.length === 11) {
     let isNumber = [true, true, true, false, true, true, false, true, true, true, true];
     let valid = true;
