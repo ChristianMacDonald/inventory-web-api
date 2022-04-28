@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const { getAll, getItemByDPCI, createItem } = require('../models/itemsModel');
+const validateToken = require('../middleware/validateToken');
+
+router.use(validateToken);
 
 router.get('/', async (req, res) => {
   try {
