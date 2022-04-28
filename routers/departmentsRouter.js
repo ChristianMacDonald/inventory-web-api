@@ -42,4 +42,21 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    let { id } = req.params;
+
+    try {
+        let department = await getDepartmentByID(id);
+
+        if (department) {
+            await removeDepartmentByID(id);
+            res.status(200).json(department);
+        } else {
+            res.status(404).json({ message: `Department with id ${id} not found` });
+        }
+    } catch {
+        res.status(500).json({ errorMessage: `Could not delete department with id ${id}` });
+    }
+});
+
 module.exports = router;
