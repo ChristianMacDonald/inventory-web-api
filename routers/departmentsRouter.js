@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const { getAll } = require('../models/departmentsModel');
+const validateToken = require('../middleware/validateToken');
+
+router.use(validateToken);
 
 router.get('/', async (req, res) => {
     try {
