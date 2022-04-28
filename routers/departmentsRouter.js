@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { getAll, getDepartmentByID } = require('../models/departmentsModel');
+const { getAll, getDepartmentByID, createDepartment, removeDepartmentByID } = require('../models/departmentsModel');
 const validateToken = require('../middleware/validateToken');
 
 router.use(validateToken);
@@ -28,6 +28,17 @@ router.get('/:id', async (req, res) => {
         }
     } catch {
         res.status(500).json({ errorMessage: 'Could not retrieve department' });
+    }
+});
+
+router.post('/', async (req, res) => {
+    let department = req.body;
+
+    try {
+        await createDepartment(department);
+        res.status(201).json(department);
+    } catch {
+        res.status(500).json({ errorMessage: 'Could not create department' });
     }
 });
 
