@@ -4,8 +4,12 @@ function getAll() {
   return qb('classes');
 }
 
-function getClassByID(id) {
-  return qb('classes').where({ id }).first();
+function getClassByDepartmentAndClassIDs(department_id, id) {
+  return qb('classes').where({ department_id, id }).first();
+}
+
+function getClassesByDepartmentID(department_id) {
+  return qb('classes').where({ department_id });
 }
 
 function createClass(itemClass) {
@@ -22,7 +26,8 @@ function removeClassByID(id) {
 
 module.exports = {
   getAll,
-  getClassByID,
+  getClassByDepartmentAndClassIDs,
+  getClassesByDepartmentID,
   createClass,
   updateClassByID,
   removeClassByID
