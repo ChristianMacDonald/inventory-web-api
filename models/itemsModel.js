@@ -12,7 +12,7 @@ function getItemsByDepartment(department_id) {
   return qb('items').where({ department_id });
 }
 
-function getItemsByDepartmentAndClass(department_id, class_id) {
+function getItemsByDepartmentAndClassIDs(department_id, class_id) {
   return qb('items').where({ department_id, class_id });
 }
 
@@ -32,7 +32,7 @@ module.exports = {
   getAll,
   getItemByDPCI,
   getItemsByDepartment,
-  getItemsByDepartmentAndClass,
+  getItemsByDepartmentAndClassIDs,
   createItem,
   updateItemByDPCI,
   removeItemByDPCI
