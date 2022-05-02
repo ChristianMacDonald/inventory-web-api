@@ -20,11 +20,11 @@ router.get('/:dpci', async (req, res) => {
   let department_id, class_id, id;
   
   if (dpci.length === 11) {
-    let isNumber = [true, true, true, false, true, true, false, true, true, true, true];
+    let format = '###-##-####';
     let valid = true;
 
     for (let i = 0; i < dpci.length; i++) {
-      if (isNumber[i]) {
+      if (format[i] === '#') {
         if (isNaN(dpci[i])) {
           valid = false;
           break;
